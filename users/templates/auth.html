@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Auth Page</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: url("/static/images/bg1.jpg") no-repeat center center fixed;
+        background-size: cover;
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        width: 350px;
+        background: rgba(255, 255, 255, 1); 
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .tabs {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        cursor: pointer;
+      }
+      .tab {
+        padding: 10px;
+        flex: 1;
+        text-align: center;
+        border-bottom: 2px solid #ccc;
+      }
+      .tab.active {
+        border-bottom: 2px solid #007bff;
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      input,
+      button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .response {
+        margin-top: 10px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Tabs -->
+      <div class="tabs">
+        <div id="signup-tab" class="tab active" onclick="showForm('signup')">
+          Signup
+        </div>
+        <div id="login-tab" class="tab" onclick="showForm('login')">Login</div>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="signup-form">
+        <input id="reg-username" placeholder="User ID" />
+        <input id="reg-email" placeholder="Email" />
+        <input id="reg-password" type="password" placeholder="Password" />
+        <button onclick="register()">Signup</button>
+        <div id="register-response" class="response"></div>
+      </div>
+
+      <!-- Login Form -->
+      <div id="login-form" style="display: none">
+        <input id="login-username" placeholder="User ID" />
+        <input id="login-password" type="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <div id="login-response" class="response"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://127.0.0.1:8000/api/auth/";
+
+      function showForm(type) {
+        if (type === "signup") {
+          document.getElementById("signup-form").style.display = "block";
+          document.getElementById("login-form").style.display = "none";
+          document.getElementById("signup-tab").classList.add("active");
+          document.getElementById("login-tab").classList.remove("active");
+        } else {
+          document.getElementById("signup-form").style.display = "none";
+          document.getElementById("login-form").style.display = "block";
+          document.getElementById("login-tab").classList.add("active");
+          document.getElementById("signup-tab").classList.remove("active");
+        }
+      }
+
+      async function register() {
+        let data = {
+          username: document.getElementById("reg-username").value,
+          email: document.getElementById("reg-email").value,
+          password: document.getElementById("reg-password").value,
+        };
+
+        let res = await fetch(API_BASE + "register/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+          document.getElementById("register-response").style.color = "green";
+          document.getElementById("register-response").innerText =
+            "Signup Successful";
+        } else {
+          let err = await res.json();
+          let message = "";
+
+          // Check for username or email error
+          if (err.username || err.email) {
+            message =
+              "A user with that username or email already exists. Please login if already registered.";
+          } else if (err.password) {
+            message = "Password error: " + err.password.join(", ");
+          } else {
+            message = "Something went wrong. Please try again.";
+          }
+
+          document.getElementById("register-response").style.color = "red";
+          document.getElementById("register-response").innerText = message;
+        }
+      }
+
+      async function login() {
+        let data = {
+          username: document.getElementById("login-username").value,
+          password: document.getElementById("login-password").value,
+        };
+
+        let res = await fetch(API_BASE + "login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+          document.getElementById("login-response").innerText =
+            "Login Successful";
+          let result = await res.json();
+          localStorage.setItem("access", result.access);
+          localStorage.setItem("refresh", result.refresh);
+        } else {
+          let err = await res.json();
+          document.getElementById("login-response").innerText =
+            "Error: " + JSON.stringify(err);
+        }
+      }
+    </script>
+  </body>
+</html>
