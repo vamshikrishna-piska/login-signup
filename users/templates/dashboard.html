@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    body {
+      margin: 0; padding: 0; height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+      background: #f4f4f4; font-family: Arial, sans-serif;
+    }
+    .box {
+      background: white; padding: 30px; border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
+    }
+    button {
+      margin-top: 15px; padding: 10px 20px;
+      background: #dc3545; color: white; border: none; border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover { background: #b02a37; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Successfully Logged In ✅</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+
+      alert("Logout Successful ✅");
+      window.location.href = "/api/auth/page/";
+    }
+  </script>
+</body>
+</html>

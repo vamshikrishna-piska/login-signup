@@ -11,3 +11,6 @@ class RegisterView(generics.CreateAPIView):
 
 def auth_page(request):
     return render(request,'auth.html')
+
+def dashboard_page(request):
+    return render(request, 'dashboard.html')
